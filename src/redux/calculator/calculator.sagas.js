@@ -1,12 +1,12 @@
 import { takeLatest, put, all, call } from 'redux-saga/effects';
 import CalculatorActionTypes from './calculator.types';
-import { fetchExchangeRate, getAccBaseCharge } from './calculator.util';
-import { fetchExchangeRateSuccess, fetchExchangeRateFailure, fetchAccBaseChargeSuccess, fetchAccBaseChargeFailure } from './calculator.actions';
+import { fetchExchangeRate, getAccBaseCharge, getCcyCharge } from './calculator.util';
+import { fetchExchangeRateSuccess, fetchExchangeRateFailure, fetchAccBaseChargeSuccess, fetchAccBaseChargeFailure, fetchCCYChargeRateSuccess, fetchCCYChargeRateFailure } from './calculator.actions';
 
 export function* fetchExchangeRateAsync({ payload }) {
   try {
     const exchangeRate = yield call(fetchExchangeRate, payload);
-    yield put(fetchExchangeRateSuccess(exchangeRate.toFixed(4)));
+    yield put(fetchExchangeRateSuccess(exchangeRate));
   } catch (error) {
     yield put(fetchExchangeRateFailure(error.message));
   }
@@ -14,11 +14,19 @@ export function* fetchExchangeRateAsync({ payload }) {
 
 export function* fetchAccBaseChargeAsync({ payload }) {
   try {
-    yield console.log('args', payload);
-    const accBaseChargeRate = yield call(getAccBaseCharge, payload[0], payload[1], payload[2]);
-    yield put(fetchAccBaseChargeSuccess(accBaseChargeRate.toFixed(4)));
+    const accBaseChargeRate = yield call(getAccBaseCharge, parseFloat(payload[0]), payload[1], payload[2]);
+    yield put(fetchAccBaseChargeSuccess(accBaseChargeRate));
   } catch (error) {
     yield put(fetchAccBaseChargeFailure(error.message));
+  }
+}
+
+export function* fetchCCYChargeRateAsync({ payload }) {
+  try {
+    const ccyChargeRate = yield call(getCcyCharge, payload[0], payload[1], payload[2], payload[3]);
+    yield put(fetchCCYChargeRateSuccess(ccyChargeRate));
+  } catch (error) {
+    yield put(fetchCCYChargeRateFailure(error.message));
   }
 }
 
@@ -30,11 +38,16 @@ export function* fetchAccBaseChargeStart() {
   yield takeLatest(CalculatorActionTypes.FETCH_ACC_BASECHARGE_START, fetchAccBaseChargeAsync);
 }
 
+export function* fetchCCYChargeRateStart() {
+  yield takeLatest(CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_START, fetchCCYChargeRateAsync);
+}
+
 export function* calculatorSagas() {
   yield all(
     [
       call(fetchExchangeRateStart),
-      call(fetchAccBaseChargeStart)
+      call(fetchCCYChargeRateStart),
+      call(fetchAccBaseChargeStart),
     ],
   );
 }

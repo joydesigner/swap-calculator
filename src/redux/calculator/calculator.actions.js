@@ -30,5 +30,20 @@ export const fetchAccBaseChargeFailure = errorMessage => ({
   payload: errorMessage
 });
 
+export const fetchCCYChargeRateStart = args => ({
+  type: CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_START,
+  payload: args
+});
+
+export const fetchCCYChargeRateSuccess = ccyChargeRate => ({
+  type: CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_SUCCESS,
+  payload: ccyChargeRate
+});
+
+export const fetchCCYChargeRateFailure = errorMessage => ({
+  type: CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_FAILURE,
+  payload: errorMessage
+});
+
 
 

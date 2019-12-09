@@ -42,6 +42,11 @@ export const selectAccBaseCharge = createSelector(
   calculator => calculator.accBaseCharge
 );
 
+export const selectCCYCharge = createSelector(
+  [selectCalculator],
+  calculator => calculator.ccyCharge
+);
+
 
 
 

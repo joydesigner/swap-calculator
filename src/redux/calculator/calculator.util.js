@@ -12,7 +12,9 @@ export const getSwapRate = (swapRatesData, symbol, direction) => {
   return swapRatesData[symbol][direction]
 };
 
-export const getCcyCharge = (exchangeRate, positionSize, swapRate, dayOfWeek) => (0.00001 / exchangeRate) * (positionSize * 100000 * swapRate) * ((dayOfWeek === 3) ? 3 : 1);
+export const getCcyCharge = (exchangeRate, positionSize, swapRate, dayOfWeek) => {
+  return (0.00001 / exchangeRate) * (positionSize * 100000 * swapRate) * ((dayOfWeek === 3) ? 3 : 1);
+};
 
 export const localizedDaysOfWeek = () => {
   let day = new Date();

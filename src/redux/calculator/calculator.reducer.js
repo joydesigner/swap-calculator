@@ -9,12 +9,12 @@ const INITIAL_STATE = {
   baseCurrency: ['AUD', 'EUR', 'USD', 'GBP', 'HKD'],
   dayOfWeek,
   directions: ['Long', 'Short'],
-  exchangeRate: 0.6840,
+  exchangeRate: 0,
   symbol: '',
   ccyCharge: 0,
-  swapRate: SwapRates['AUDUSD']['long'].toFixed(4),
+  swapRate: SwapRates['AUDUSD']['long'],
   accBaseCharge: 0,
-  accArgs: []
+  args: []
 };
 
 const calculatorReducer = (state = INITIAL_STATE, action) => {
@@ -30,21 +30,28 @@ const calculatorReducer = (state = INITIAL_STATE, action) => {
         exchangeRate: action.payload
       };
     case CalculatorActionTypes.FETCH_ACC_BASECHARGE_START:
+    case CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_START:
       return {
         ...state,
-        accArgs: action.payload
+        args: action.payload
       };
     case CalculatorActionTypes.FETCH_ACC_BASECHARGE_SUCCESS:
       return {
         ...state,
         accBaseCharge: action.payload
-      }
+      };
+    case CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_SUCCESS:
+      return {
+        ...state,
+        ccyCharge: action.payload
+      };
     case CalculatorActionTypes.FETCH_EXCHANGE_RATE_FAILURE:
     case CalculatorActionTypes.FETCH_ACC_BASECHARGE_FAILURE:
+    case CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_FAILURE:
       return {
         ...state,
         errorMessage: action.payload
-      }
+      };
     default:
       return state;
   }

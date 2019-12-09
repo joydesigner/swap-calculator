@@ -2,79 +2,84 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import { fetchExchangeRateStart, fetchAccBaseChargeStart } from '../redux/calculator/calculator.actions';
-import { selectSwapRatesForCurrency, selectSwapRatesForBaseCurrency, selectDayOfWeek, selectDirections, selectSwapRateLong, selectSwapRates, selectExchangeRate, selectAccBaseCharge } from '../redux/calculator/calculator.selectors';
-import { getSwapRate, getCcyCharge } from '../redux/calculator/calculator.util';
+import { fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart } from '../redux/calculator/calculator.actions';
+import { selectSwapRatesForCurrency, selectSwapRatesForBaseCurrency, selectDayOfWeek, selectDirections, selectSwapRateLong, selectSwapRates, selectAccBaseCharge, selectCCYCharge } from '../redux/calculator/calculator.selectors';
+import { getSwapRate, getCcyCharge, fetchExchangeRate } from '../redux/calculator/calculator.util';
 
-const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, exchangeRate, accBaseCharge }) => {
+const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }) => {
   const [positionSize, setPositionSize] = useState(1);
-  const [swapRate, setSwapRate] = useState(swapRateLong);
+  const [swapRate, setSwapRate] = useState(parseFloat(swapRateLong));
   const initialSymbol = swapCurrencies[5];
   const [symbol, setSymbol] = useState(initialSymbol);
   const [selectedDirection, setSelectedDirection] = useState(directions[0].toLowerCase());
-  const [ccyCharge, setCcyCharge] = useState(0);
   const [dow, setdow] = useState(1);
   const [baseCurrency, setBaseCurrency] = useState('AUD');
-  // const [accBaseCharge, setAccBaseCharge] = useState(0);
+  const [exchangeRate, setExchangeRate] = useState(0);
 
   useEffect(() => {
-    async function fetchRate() {
-      fetchExchangeRateStart(initialSymbol);
+    async function runCalculator() {
+      const exRate = await fetchExchangeRate(initialSymbol);
+      const ccyChargeRate = getCcyCharge(exRate, 1, swapRate, dow);
+
+      setExchangeRate(exRate);
       setSymbol(initialSymbol);
-      const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dow).toFixed(4);
-      setCcyCharge(ccyChargeRate);
-      fetchAccBaseChargeStart([parseFloat(ccyChargeRate), symbol, baseCurrency]);
+      fetchCCYChargeRateStart([exRate, 1, swapRate, dow]);
+      fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
     }
-    fetchRate();
+    runCalculator();
+
   }, []);
 
-  const onPositionSizeChangeHandle = async event => {
+  const onPositionSizeChangeHandle = event => {
     const { value } = event.target;
+    const ccyChargeRate = getCcyCharge(exchangeRate, value, swapRate, dow);
+
     setPositionSize(value);
-    const ccyChargeRate = getCcyCharge(exchangeRate, value, swapRate, dow).toFixed(4);
-    fetchAccBaseChargeStart([parseFloat(ccyChargeRate), symbol, baseCurrency]);
-    setCcyCharge(ccyChargeRate);
+    fetchCCYChargeRateStart([exchangeRate, value, swapRate, dow]);
+    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
   }
 
-  const onExchangeRateChangeHandle = event => {
-
-  }
 
   const onSymbolChangeHandle = async event => {
-    console.log(event.target.value);
-    const symbol = event.target.value;
-    const swapRate = getSwapRate(swapRates, symbol, selectedDirection);
+    const swapCurrency = event.target.value;
+    const swapRate = getSwapRate(swapRates, swapCurrency, selectedDirection);
+    const exRate = await fetchExchangeRate(swapCurrency);
+    const ccyChargeRate = getCcyCharge(exRate, positionSize, swapRate, dow);
+
+    setSymbol(swapCurrency);
+    setSwapRate(swapRate);
+    setExchangeRate(exRate);
     fetchExchangeRateStart(symbol);
-    const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dow).toFixed(4);
-    fetchAccBaseChargeStart([parseFloat(ccyChargeRate), symbol, baseCurrency]);
-    console.log('accBaseCharge', accBaseCharge);
-    setCcyCharge(ccyChargeRate);
-    setSymbol(symbol);
-    setSwapRate(swapRate.toFixed(4));
+    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dow]);
+    fetchAccBaseChargeStart([ccyChargeRate, swapCurrency, baseCurrency]);
   }
 
-  const onDirectionChangeHandle = async event => {
+  const onDirectionChangeHandle = event => {
     const { value } = event.target;
     const swapRate = getSwapRate(swapRates, symbol, value);
-    const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dow).toFixed(4);
-    fetchAccBaseChargeStart([parseFloat(ccyChargeRate), symbol, baseCurrency]);
+    const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dow);
+
     setSelectedDirection(value);
     setSwapRate(swapRate);
-    setCcyCharge(ccyChargeRate);
+    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dow]);
+    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
   }
 
-  const onDayOfWeekChangeHandle = async event => {
+  const onDayOfWeekChangeHandle = event => {
     const dayOfWeek = parseInt(event.target.value);
-    const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dayOfWeek).toFixed(4);
-    fetchAccBaseChargeStart([parseFloat(ccyChargeRate), symbol, baseCurrency]);
+    const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dayOfWeek);
+
     setdow(dayOfWeek);
-    setCcyCharge(ccyChargeRate);
+    fetchExchangeRate(symbol);
+    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dayOfWeek]);
+    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
   }
 
   const onBaseCurrencyChangeHandle = async event => {
     const { value } = event.target;
-    fetchAccBaseChargeStart([parseFloat(ccyCharge), symbol, value]);
+
     setBaseCurrency(value);
+    fetchAccBaseChargeStart([ccyCharge, symbol, value]);
   }
 
   return (
@@ -96,7 +101,7 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
 
         <div className='form-group'>
           <label htmlFor='exchangeRate'>Exchange rate</label>
-          <input disabled className='form-control' id='exchangeRate' name='exchangeRate' value={exchangeRate} onChange={onExchangeRateChangeHandle} />
+          <input disabled className='form-control' id='exchangeRate' name='exchangeRate' value={exchangeRate.toFixed(4)} />
         </div>
 
         <div className='form-group'>
@@ -133,13 +138,13 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
 
         <div className='form-group'>
           <label htmlFor='swapRate'>Swap rate </label>
-          <input id='swapRate' disabled name='swapRate' className='form-control' value={swapRate} />
+          <input id='swapRate' disabled name='swapRate' className='form-control' value={swapRate.toFixed(4)} />
         </div>
         <h3>Quote CCY Charge ccyCharge &nbsp;
-        {ccyCharge}
+        {ccyCharge.toFixed(4)}
         </h3>
         <h3 >Charge in acccount base currency &nbsp;
-        {accBaseCharge}
+        {accBaseCharge.toFixed(4)}
         </h3>
       </form>
     </div>
@@ -153,12 +158,13 @@ const mapStateToProps = (state, props) => createStructuredSelector({
   directions: selectDirections,
   swapRateLong: selectSwapRateLong,
   swapRates: selectSwapRates,
-  exchangeRate: selectExchangeRate,
-  accBaseCharge: selectAccBaseCharge
+  accBaseCharge: selectAccBaseCharge,
+  ccyCharge: selectCCYCharge
 });
 
 const mapDispatchToProps = dispatch => ({
   fetchExchangeRateStart: symbol => dispatch(fetchExchangeRateStart(symbol)),
+  fetchCCYChargeRateStart: (exchangeRate, positionSize, swapRate, dayOfWeek) => dispatch(fetchCCYChargeRateStart(exchangeRate, positionSize, swapRate, dayOfWeek)),
   fetchAccBaseChargeStart: (ccyCharge, symbol, baseCurrency) => dispatch(fetchAccBaseChargeStart(ccyCharge, symbol, baseCurrency))
 });
 
