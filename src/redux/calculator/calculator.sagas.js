@@ -12,10 +12,10 @@ export function* fetchExchangeRateAsync({ payload }) {
   }
 }
 
-export function* fetchAccBaseChargeAsync(args) {
+export function* fetchAccBaseChargeAsync({ payload }) {
   try {
-    console.log(args);
-    const accBaseChargeRate = yield call(getAccBaseCharge, args[0], args[1], args[2]);
+    yield console.log('args', payload);
+    const accBaseChargeRate = yield call(getAccBaseCharge, payload[0], payload[1], payload[2]);
     yield put(fetchAccBaseChargeSuccess(accBaseChargeRate.toFixed(4)));
   } catch (error) {
     yield put(fetchAccBaseChargeFailure(error.message));
@@ -32,7 +32,9 @@ export function* fetchAccBaseChargeStart() {
 
 export function* calculatorSagas() {
   yield all(
-    [call(fetchExchangeRateStart)],
-    [call(fetchAccBaseChargeStart)]
+    [
+      call(fetchExchangeRateStart),
+      call(fetchAccBaseChargeStart)
+    ],
   );
 }

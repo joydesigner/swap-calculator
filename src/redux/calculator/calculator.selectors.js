@@ -35,7 +35,12 @@ export const selectSwapRateLong = createSelector(
 export const selectExchangeRate = createSelector(
   [selectCalculator],
   calculator => calculator.exchangeRate
-)
+);
+
+export const selectAccBaseCharge = createSelector(
+  [selectCalculator],
+  calculator => calculator.accBaseCharge
+);
 
 
 
