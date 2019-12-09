@@ -1,9 +1,10 @@
 import { takeLatest, put, all, call } from 'redux-saga/effects';
 import CalculatorActionTypes from './calculator.types';
 import { fetchExchangeRate, getAccBaseCharge, getCcyCharge } from './calculator.util';
+import { IBaseAction } from './common.types';
 import { fetchExchangeRateSuccess, fetchExchangeRateFailure, fetchAccBaseChargeSuccess, fetchAccBaseChargeFailure, fetchCCYChargeRateSuccess, fetchCCYChargeRateFailure } from './calculator.actions';
 
-export function* fetchExchangeRateAsync({ payload }) {
+export function* fetchExchangeRateAsync({ payload }: IBaseAction) {
   try {
     const exchangeRate = yield call(fetchExchangeRate, payload);
     yield put(fetchExchangeRateSuccess(exchangeRate));
@@ -12,7 +13,7 @@ export function* fetchExchangeRateAsync({ payload }) {
   }
 }
 
-export function* fetchAccBaseChargeAsync({ payload }) {
+export function* fetchAccBaseChargeAsync({ payload }: IBaseAction) {
   try {
     const accBaseChargeRate = yield call(getAccBaseCharge, parseFloat(payload[0]), payload[1], payload[2]);
     yield put(fetchAccBaseChargeSuccess(accBaseChargeRate));
@@ -21,7 +22,7 @@ export function* fetchAccBaseChargeAsync({ payload }) {
   }
 }
 
-export function* fetchCCYChargeRateAsync({ payload }) {
+export function* fetchCCYChargeRateAsync({ payload }: IBaseAction) {
   try {
     const ccyChargeRate = yield call(getCcyCharge, payload[0], payload[1], payload[2], payload[3]);
     yield put(fetchCCYChargeRateSuccess(ccyChargeRate));

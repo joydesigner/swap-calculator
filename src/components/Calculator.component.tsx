@@ -6,9 +6,11 @@ import { fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStar
 import { selectSwapRatesForCurrency, selectSwapRatesForBaseCurrency, selectDayOfWeek, selectDirections, selectSwapRateLong, selectSwapRates, selectAccBaseCharge, selectCCYCharge } from '../redux/calculator/calculator.selectors';
 import { getSwapRate, getCcyCharge, fetchExchangeRate } from '../redux/calculator/calculator.util';
 
-const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }) => {
+type CalculatorProps = { swapCurrencies: string[], baseCurrencies: string[], dayOfWeek: string[], directions: string[], swapRateLong: number, swapRates: object, fetchExchangeRateStart: any, fetchAccBaseChargeStart: any, fetchCCYChargeRateStart: any, accBaseCharge: number, ccyCharge: number };
+
+const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }: CalculatorProps) => {
   const [positionSize, setPositionSize] = useState(1);
-  const [swapRate, setSwapRate] = useState(parseFloat(swapRateLong));
+  const [swapRate, setSwapRate] = useState(swapRateLong);
   const initialSymbol = swapCurrencies[5];
   const [symbol, setSymbol] = useState(initialSymbol);
   const [selectedDirection, setSelectedDirection] = useState(directions[0].toLowerCase());
