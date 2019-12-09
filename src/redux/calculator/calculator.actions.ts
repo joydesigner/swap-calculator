@@ -16,7 +16,7 @@ export const fetchExchangeRateFailure = (errorMessage: string): IBaseAction => (
   payload: errorMessage
 });
 
-export const fetchAccBaseChargeStart = (args: string[]): IBaseAction => ({
+export const fetchAccBaseChargeStart = (args: any[]): IBaseAction => ({
   type: CalculatorActionTypes.FETCH_ACC_BASECHARGE_START,
   payload: args
 });
@@ -31,7 +31,7 @@ export const fetchAccBaseChargeFailure = (errorMessage: string): IBaseAction => 
   payload: errorMessage
 });
 
-export const fetchCCYChargeRateStart = (args: string[]): IBaseAction => ({
+export const fetchCCYChargeRateStart = (args: any[]): IBaseAction => ({
   type: CalculatorActionTypes.FETCH_CCY_CHARGE_RATE_START,
   payload: args
 });

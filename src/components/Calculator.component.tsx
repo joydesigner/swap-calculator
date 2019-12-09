@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
+import { ICalculatorState } from '../redux/calculator/common.types';
 import { fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart } from '../redux/calculator/calculator.actions';
 import { selectSwapRatesForCurrency, selectSwapRatesForBaseCurrency, selectDayOfWeek, selectDirections, selectSwapRateLong, selectSwapRates, selectAccBaseCharge, selectCCYCharge } from '../redux/calculator/calculator.selectors';
 import { getSwapRate, getCcyCharge, fetchExchangeRate } from '../redux/calculator/calculator.util';
 
-type CalculatorProps = { swapCurrencies: string[], baseCurrencies: string[], dayOfWeek: string[], directions: string[], swapRateLong: number, swapRates: object, fetchExchangeRateStart: any, fetchAccBaseChargeStart: any, fetchCCYChargeRateStart: any, accBaseCharge: number, ccyCharge: number };
+import { CalculatorProps } from '../redux/calculator/common.types';
 
-const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }: CalculatorProps) => {
+const Calculator: React.FC<CalculatorProps> = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }) => {
   const [positionSize, setPositionSize] = useState(1);
   const [swapRate, setSwapRate] = useState(swapRateLong);
   const initialSymbol = swapCurrencies[5];
@@ -25,24 +26,24 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
 
       setExchangeRate(exRate);
       setSymbol(initialSymbol);
-      fetchCCYChargeRateStart([exRate, 1, swapRate, dow]);
-      fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
+      fetchCCYChargeRateStart(exRate, 1, swapRate, dow);
+      fetchAccBaseChargeStart(ccyChargeRate, symbol, baseCurrency);
     }
     runCalculator();
 
   }, []);
 
-  const onPositionSizeChangeHandle = event => {
+  const onPositionSizeChangeHandle = (event: any) => {
     const { value } = event.target;
     const ccyChargeRate = getCcyCharge(exchangeRate, value, swapRate, dow);
 
     setPositionSize(value);
-    fetchCCYChargeRateStart([exchangeRate, value, swapRate, dow]);
-    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
+    fetchCCYChargeRateStart(exchangeRate, value, swapRate, dow);
+    fetchAccBaseChargeStart(ccyChargeRate, symbol, baseCurrency);
   }
 
 
-  const onSymbolChangeHandle = async event => {
+  const onSymbolChangeHandle = async (event: any) => {
     const swapCurrency = event.target.value;
     const swapRate = getSwapRate(swapRates, swapCurrency, selectedDirection);
     const exRate = await fetchExchangeRate(swapCurrency);
@@ -52,36 +53,36 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
     setSwapRate(swapRate);
     setExchangeRate(exRate);
     fetchExchangeRateStart(symbol);
-    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dow]);
-    fetchAccBaseChargeStart([ccyChargeRate, swapCurrency, baseCurrency]);
+    fetchCCYChargeRateStart(exchangeRate, positionSize, swapRate, dow);
+    fetchAccBaseChargeStart(ccyChargeRate, swapCurrency, baseCurrency);
   }
 
-  const onDirectionChangeHandle = event => {
+  const onDirectionChangeHandle = (event: any) => {
     const { value } = event.target;
     const swapRate = getSwapRate(swapRates, symbol, value);
     const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dow);
 
     setSelectedDirection(value);
     setSwapRate(swapRate);
-    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dow]);
-    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
+    fetchCCYChargeRateStart(exchangeRate, positionSize, swapRate, dow);
+    fetchAccBaseChargeStart(ccyChargeRate, symbol, baseCurrency);
   }
 
-  const onDayOfWeekChangeHandle = event => {
+  const onDayOfWeekChangeHandle = (event: any) => {
     const dayOfWeek = parseInt(event.target.value);
     const ccyChargeRate = getCcyCharge(exchangeRate, positionSize, swapRate, dayOfWeek);
 
     setdow(dayOfWeek);
     fetchExchangeRate(symbol);
-    fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dayOfWeek]);
-    fetchAccBaseChargeStart([ccyChargeRate, symbol, baseCurrency]);
+    fetchCCYChargeRateStart(exchangeRate, positionSize, swapRate, dayOfWeek);
+    fetchAccBaseChargeStart(ccyChargeRate, symbol, baseCurrency);
   }
 
-  const onBaseCurrencyChangeHandle = async event => {
+  const onBaseCurrencyChangeHandle = async (event: any) => {
     const { value } = event.target;
 
     setBaseCurrency(value);
-    fetchAccBaseChargeStart([ccyCharge, symbol, value]);
+    fetchAccBaseChargeStart(ccyCharge, symbol, value);
   }
 
   return (
@@ -91,9 +92,12 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
         <div className='form-group'>
           <label htmlFor="symbol">Currency</label>
           <select className='form-control' id='symbol' name='symbol' value={symbol} onChange={onSymbolChangeHandle}>
-            {swapCurrencies.map(currency => (
-              <option key={currency} value={currency} >{currency}</option>
-            ))}
+
+            {
+              swapCurrencies.map(currency => (
+                <option key={currency} value={currency} >{currency}</option>
+              ))
+            }
           </select>
         </div>
         <div className='form-group'>
@@ -109,9 +113,11 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
         <div className='form-group'>
           <label htmlFor='baseCurrency' >Acc base currency</label>
           <select className='form-control' id='baseCurrency' name='baseCurrency' value={baseCurrency} onChange={onBaseCurrencyChangeHandle}>
-            {baseCurrencies.map(currency => (
-              <option key={currency} value={currency}>{currency}</option>
-            ))}
+            {
+              baseCurrencies.map(currency => (
+                <option key={currency} value={currency}>{currency}</option>
+              ))
+            }
           </select>
         </div>
 
@@ -153,7 +159,7 @@ const Calculator = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swa
   )
 };
 
-const mapStateToProps = (state, props) => createStructuredSelector({
+const mapStateToProps = (state: ICalculatorState, props: CalculatorProps) => createStructuredSelector({
   swapCurrencies: selectSwapRatesForCurrency,
   baseCurrencies: selectSwapRatesForBaseCurrency,
   dayOfWeek: selectDayOfWeek,
@@ -164,10 +170,10 @@ const mapStateToProps = (state, props) => createStructuredSelector({
   ccyCharge: selectCCYCharge
 });
 
-const mapDispatchToProps = dispatch => ({
-  fetchExchangeRateStart: symbol => dispatch(fetchExchangeRateStart(symbol)),
-  fetchCCYChargeRateStart: (exchangeRate, positionSize, swapRate, dayOfWeek) => dispatch(fetchCCYChargeRateStart(exchangeRate, positionSize, swapRate, dayOfWeek)),
-  fetchAccBaseChargeStart: (ccyCharge, symbol, baseCurrency) => dispatch(fetchAccBaseChargeStart(ccyCharge, symbol, baseCurrency))
+const mapDispatchToProps = (dispatch: any) => ({
+  fetchExchangeRateStart: (symbol: string) => dispatch(fetchExchangeRateStart(symbol)),
+  fetchCCYChargeRateStart: (exchangeRate: number, positionSize: number, swapRate: number, dayOfWeek: number) => dispatch(fetchCCYChargeRateStart([exchangeRate, positionSize, swapRate, dayOfWeek])),
+  fetchAccBaseChargeStart: (ccyCharge: number, symbol: string, baseCurrency: string) => dispatch(fetchAccBaseChargeStart([ccyCharge, symbol, baseCurrency]))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Calculator);

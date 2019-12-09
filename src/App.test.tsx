@@ -1,9 +1,9 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, ShallowWrapper } from 'enzyme';
 import App from './App';
 import Calculator from './components/Calculator.component'
 
-let wrapper;
+let wrapper: ShallowWrapper;
 
 beforeEach(() => {
   wrapper = shallow(<App />);

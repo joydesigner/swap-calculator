@@ -1,6 +1,7 @@
 export const ticker = (symbol: string) => symbol.trim().match(/.{1,3}/g);
 
 export const fetchExchangeRate = async (symbol: string) => {
+
   const [base, currency] = ticker(symbol);
   const { rates } = await fetch(`https://openexchangerates.org/api/latest.json?app_id=aaaf757c39ce48ba85b5276f71a34f1d&base=${base}&symbols=${currency}`)
     .then(_ => _.json());

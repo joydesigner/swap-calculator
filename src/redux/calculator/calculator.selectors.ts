@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-const selectCalculator = state => state.calculator;
+const selectCalculator = (state: any) => state.calculator;
 
 export const selectSwapRates = createSelector(
   [selectCalculator],

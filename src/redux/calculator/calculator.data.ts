@@ -1,4 +1,4 @@
-const SwapRates: object = {
+const SwapRates: any = {
   AUDCAD: { long: -3.55, short: 0.21 },
   AUDCHF: { long: 1.74, short: -4.37 },
   AUDJPY: { long: 0.87, short: -4.42 },
