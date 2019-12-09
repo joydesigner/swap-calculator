@@ -1,10 +1,11 @@
 import CalculatorActionTypes from './calculator.types';
 import SwapRates from './calculator.data';
 import { localizedDaysOfWeek } from './calculator.util';
+import { ICalculatorState, IBaseAction } from './common.types';
 
 const dayOfWeek = localizedDaysOfWeek().filter((val, index) => index > 0 && index < 6);
 
-const INITIAL_STATE = {
+const INITIAL_STATE: ICalculatorState = {
   swapRates: SwapRates,
   baseCurrency: ['AUD', 'EUR', 'USD', 'GBP', 'HKD'],
   dayOfWeek,
@@ -17,7 +18,7 @@ const INITIAL_STATE = {
   args: []
 };
 
-const calculatorReducer = (state = INITIAL_STATE, action) => {
+const calculatorReducer = (state: ICalculatorState = INITIAL_STATE, action: IBaseAction) => {
   switch (action.type) {
     case CalculatorActionTypes.FETCH_EXCHANGE_RATE_START:
       return {
