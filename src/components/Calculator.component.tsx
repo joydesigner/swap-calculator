@@ -8,6 +8,7 @@ import { selectSwapRatesForCurrency, selectSwapRatesForBaseCurrency, selectDayOf
 import { getSwapRate, getCcyCharge, fetchExchangeRate } from '../redux/calculator/calculator.util';
 
 import { CalculatorProps } from '../redux/calculator/common.types';
+import './calculator.styles.scss';
 
 const Calculator: React.FC<CalculatorProps> = ({ swapCurrencies, baseCurrencies, dayOfWeek, directions, swapRateLong, swapRates, fetchExchangeRateStart, fetchAccBaseChargeStart, fetchCCYChargeRateStart, accBaseCharge, ccyCharge }) => {
   const [positionSize, setPositionSize] = useState(1);
